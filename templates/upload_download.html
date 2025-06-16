@@ -3,150 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <title>Upload & Download File</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 500px;
-      
-      padding: 2rem;
-     
-    }
-
-    h2 {
-      color: #2c3e50;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    form {
-      margin-bottom: 2rem;
-      border-radius: 10px;
-      padding: 20px;
-      background: #fff;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    input[type="file"] {
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-      display: block;
-      width: 100%;
-    }
-
-    button {
-      background-color: #3498db;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      position: relative;
-    }
-
-    button:disabled {
-      background-color: #95a5a6;
-      cursor: not-allowed;
-    }
-
-    .spinner-small {
-      width: 16px;
-      height: 16px;
-      border: 3px solid #fff;
-      border-top: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: none;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
-    }
-
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    li {
-      background: #fff;
-      padding: 0.75rem 1rem;
-      margin-bottom: 0.5rem;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.95rem;
-    }
-
-    .file-name {
-      font-weight: bold;
-      word-break: break-word;
-    }
-
-    .file-actions a {
-      margin-left: 10px;
-      text-decoration: none;
-      color: #2980b9;
-    }
-
-    .file-actions a:hover {
-      text-decoration: underline;
-    }
-
-    .empty {
-      font-style: italic;
-      color: #777;
-      text-align: center;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
 
-  <div class="container">
-    <h2>Upload File</h2>
-    <form method="post" enctype="multipart/form-data" id="uploadForm">
+  <div class="w-full max-w-md p-8">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Upload File</h2>
+    <form method="post" enctype="multipart/form-data" id="uploadForm" class="mb-8 rounded-lg p-6 bg-white shadow-lg">
       {% csrf_token %}
-      <label>
-        <input type="file" name="files" multiple required>
-      </label>
-      <button type="submit" id="uploadBtn">
-        <div class="spinner-small" id="uploadSpinner"></div>
+
+      <!-- Drag and Drop Area -->
+      <div id="dropArea" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-400 rounded cursor-pointer transition hover:border-blue-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0l-4 4m4-4l4 4M17 8v12m0 0l-4-4m4 4l4-4"/>
+        </svg>
+        <p class="text-gray-600 text-center">Seret & Lepaskan file di sini atau <span class="text-blue-500 underline">klik untuk pilih file</span></p>
+        <input type="file" id="fileInput" name="files" multiple required class="hidden">
+        <p id="selectedFiles" class="mt-2 text-sm text-gray-600 italic">Belum ada file dipilih</p>
+      </div>
+
+      <!-- Upload Button -->
+      <button type="submit" id="uploadBtn" class="w-full mt-4 flex justify-center items-center gap-2 bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed">
+        <div id="uploadSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
         <span id="uploadText">Upload</span>
       </button>
     </form>
-    <hr>
 
-    <h2>Daftar File</h2>
+    <hr class="my-6">
+
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Daftar File</h2>
     <ul>
       {% for doc in documents %}
-        <li>
-          <span class="file-name">{{ doc.file.name|cut:"documents/" }}</span>
-          <span class="file-actions">
-            <a href="{% url 'download_file' doc.id %}">Download</a>
-            <a href="{% url 'delete_file' doc.id %}" onclick="return confirm('Yakin ingin menghapus file ini?')">Hapus</a>
+        <li class="bg-white p-4 mb-2 rounded-md shadow-sm flex justify-between items-center text-sm">
+          <span class="font-bold break-words">{{ doc.file.name|cut:"documents/" }}</span>
+          <span class="ml-4">
+            <a href="{% url 'download_file' doc.id %}" class="text-blue-600 hover:underline ml-2">Download</a>
+            <a href="{% url 'delete_file' doc.id %}"  class="text-blue-600 hover:underline ml-2">Hapus</a>
           </span>
         </li>
       {% empty %}
-        <li class="empty">Belum ada file diunggah.</li>
+        <li class="italic text-gray-500 text-center">Belum ada file diunggah.</li>
       {% endfor %}
     </ul>
   </div>
@@ -157,10 +53,50 @@
     const uploadText = document.getElementById('uploadText');
     const spinner = document.getElementById('uploadSpinner');
 
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const selectedFiles = document.getElementById('selectedFiles');
+
+    // Klik area → buka file picker
+    dropArea.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    // Drag over style
+    dropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropArea.classList.add('border-blue-400', 'bg-blue-50');
+    });
+
+    dropArea.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropArea.classList.remove('border-blue-400', 'bg-blue-50');
+    });
+
+    // Drop file
+    dropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropArea.classList.remove('border-blue-400', 'bg-blue-50');
+      fileInput.files = e.dataTransfer.files;
+      updateSelectedFiles();
+    });
+
+    // Update file name
+    fileInput.addEventListener('change', updateSelectedFiles);
+
+    function updateSelectedFiles() {
+      if (fileInput.files.length > 0) {
+        selectedFiles.textContent = `${fileInput.files.length} file dipilih`;
+      } else {
+        selectedFiles.textContent = 'Belum ada file dipilih';
+      }
+    }
+
+    // Spinner saat submit
     form.addEventListener('submit', function () {
       uploadBtn.disabled = true;
       uploadText.textContent = 'Uploading...';
-      spinner.style.display = 'inline-block';
+      spinner.classList.remove('hidden');
     });
   </script>
 

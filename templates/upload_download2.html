@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload & Download File</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+
+  <div class="w-full max-w-md p-8">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Upload File</h2>
+    <form method="post" enctype="multipart/form-data" id="uploadForm" class="mb-8 rounded-lg p-6 bg-white shadow-lg">
+      {% csrf_token %}
+      <label class="block mb-4">
+        <input type="file" name="files" multiple required class="block w-full mt-2">
+      </label>
+      <button type="submit" id="uploadBtn" class="w-full flex justify-center items-center gap-2 bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed">
+        <div id="uploadSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <span id="uploadText">Upload</span>
+      </button>
+    </form>
+
+    <hr class="my-6">
+
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">Daftar File</h2>
+    <ul>
+      {% for doc in documents %}
+        <li class="bg-white p-4 mb-2 rounded-md shadow-sm flex justify-between items-center text-sm">
+          <span class="font-bold break-words">{{ doc.file.name|cut:"documents/" }}</span>
+          <span class="ml-4">
+            <a href="{% url 'download_file' doc.id %}" class="text-blue-600 hover:underline ml-2">Download</a>
+            <a href="{% url 'delete_file' doc.id %}" onclick="return confirm('Yakin ingin menghapus file ini?')" class="text-blue-600 hover:underline ml-2">Hapus</a>
+          </span>
+        </li>
+      {% empty %}
+        <li class="italic text-gray-500 text-center">Belum ada file diunggah.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadText = document.getElementById('uploadText');
+    const spinner = document.getElementById('uploadSpinner');
+
+    form.addEventListener('submit', function () {
+      uploadBtn.disabled = true;
+      uploadText.textContent = 'Uploading...';
+      spinner.classList.remove('hidden');
+    });
+  </script>
+
+</body>
+</html>
