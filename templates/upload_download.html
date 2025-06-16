@@ -13,11 +13,12 @@
       {% csrf_token %}
 
       <!-- Drag and Drop Area -->
-      <div id="dropArea" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-400 rounded cursor-pointer transition hover:border-blue-400">
+      <div id="dropArea" class="flex flex-col items-center justify-center p-3 border-2 border-dashed border-gray-400 rounded cursor-pointer transition hover:border-blue-400">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0l-4 4m4-4l4 4M17 8v12m0 0l-4-4m4 4l4-4"/>
         </svg>
-        <p class="text-gray-600 text-center">Seret & Lepaskan file di sini atau <span class="text-blue-500 underline">klik untuk pilih file</span></p>
+        <p class="text-gray-600 text-center">Drag & Drop file atau klik di sini !</p>
+       
         <input type="file" id="fileInput" name="files" multiple required class="hidden">
         <p id="selectedFiles" class="mt-2 text-sm text-gray-600 italic">Belum ada file dipilih</p>
       </div>
